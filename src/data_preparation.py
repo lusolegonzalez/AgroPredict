@@ -19,6 +19,9 @@ def clean_data(df):
     # Opcional: Eliminar duplicados
     df = df.drop_duplicates()
 
+    # Filtrar precios positivos
+    df = df[df['precio'] > 0]
+    
     # Asegurar que los datos estén ordenados por fecha
     if 'fecha' in df.columns:
         df = df.sort_values(by='fecha')
@@ -34,8 +37,22 @@ if __name__ == "__main__":
     try:
         data = load_data(raw_data_path)
         print("Datos cargados con éxito.")
+
+         # Mostrar las primeras filas del dataset crudo
+        print("Primeras filas del dataset crudo:")
+        print(data.head())
+
         clean_data = clean_data(data)
+
+              # Mostrar las columnas y descripción del dataset limpio
+        print("Columnas del dataset limpio:")
+        print(clean_data.columns)
+        print("\nDescripción del dataset limpio:")
+        print(clean_data.describe())
+
         clean_data.to_csv(processed_data_path, index=False)
         print(f"Datos procesados y guardados en {processed_data_path}")
     except Exception as e:
         print(f"Error durante la preparación de los datos: {e}")
+
+        

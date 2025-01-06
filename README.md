@@ -19,3 +19,7 @@ AgroPredict/
 │
 ├── requirements.txt   # Dependencias del proyecto
 └── README.md          # Documentación
+
+1- data_preparation.py
+2- model_training.py
+3- predict...

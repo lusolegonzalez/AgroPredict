@@ -1,58 +1,38 @@
 import pandas as pd
-import os
 
-def load_data(filepath):
-    """Cargar dataset desde un archivo CSV."""
-    if not os.path.exists(filepath):
-        raise FileNotFoundError(f"El archivo no existe: {filepath}")
-    return pd.read_csv(filepath)
+# Ruta del archivo subido por el usuario
+file_path = './data/raw/fao_food_price_indices.csv'
+processed_data_path = './data/cleaned/cleaned_fao_food_price_indices.csv'
 
-def clean_data(df):
-    """Limpiar y preparar el dataset."""
-    # Convertir la columna de fecha a tipo datetime
-    if 'fecha' in df.columns:
-        df['fecha'] = pd.to_datetime(df['fecha'], format='%Y-%m-%d', errors='coerce')
+# Cargar el dataset
+df_fao = pd.read_csv(file_path)
 
-    # Eliminar filas con valores nulos
-    df = df.dropna()
+# Mostrar las primeras filas y la información general para revisión
+df_fao.head(), df_fao.info()
 
-    # Opcional: Eliminar duplicados
-    df = df.drop_duplicates()
+# Limpiar las columnas innecesarias y procesar filas útiles
 
-    # Filtrar precios positivos
-    df = df[df['precio'] > 0]
-    
-    # Asegurar que los datos estén ordenados por fecha
-    if 'fecha' in df.columns:
-        df = df.sort_values(by='fecha')
+# Renombrar columnas basándose en la primera fila y descartar las demás filas de metadatos
+df_fao_cleaned = df_fao.rename(columns=df_fao.iloc[1]).drop([0, 1, 2])
 
-    return df
+# Eliminar columnas que son completamente nulas o irrelevantes
+df_fao_cleaned = df_fao_cleaned.dropna(axis=1, how='all')
 
-if __name__ == "__main__":
-    # Ruta del dataset crudo
-    raw_data_path = "./data/raw/precios_granos.csv"
-    processed_data_path = "./data/processed/precios_granos_limpios.csv"
+# Filtrar solo las filas que tienen datos en la columna de fecha (Date)
+df_fao_cleaned = df_fao_cleaned[df_fao_cleaned['Date'].notnull()]
 
-    # Cargar y limpiar los datos
-    try:
-        data = load_data(raw_data_path)
-        print("Datos cargados con éxito.")
+# Convertir la columna 'Date' en un formato de fecha reconocible
+df_fao_cleaned['Date'] = pd.to_datetime(df_fao_cleaned['Date'], errors='coerce')
 
-         # Mostrar las primeras filas del dataset crudo
-        print("Primeras filas del dataset crudo:")
-        print(data.head())
+# Eliminar filas donde la fecha no se pudo convertir
+df_fao_cleaned = df_fao_cleaned.dropna(subset=['Date'])
 
-        clean_data = clean_data(data)
+# Convertir el resto de las columnas numéricas al tipo adecuado (float)
+for col in df_fao_cleaned.columns[1:]:  # Ignorar la columna de fecha
+    df_fao_cleaned[col] = pd.to_numeric(df_fao_cleaned[col], errors='coerce')
 
-              # Mostrar las columnas y descripción del dataset limpio
-        print("Columnas del dataset limpio:")
-        print(clean_data.columns)
-        print("\nDescripción del dataset limpio:")
-        print(clean_data.describe())
+# Mostrar una vista previa de los datos limpiados
+df_fao_cleaned.head(), df_fao_cleaned.info()
 
-        clean_data.to_csv(processed_data_path, index=False)
-        print(f"Datos procesados y guardados en {processed_data_path}")
-    except Exception as e:
-        print(f"Error durante la preparación de los datos: {e}")
-
-        
+df_fao_cleaned.to_csv(processed_data_path, index=False)
+print(f"Datos procesados y guardados en {processed_data_path}")

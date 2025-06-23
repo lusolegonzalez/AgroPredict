@@ -1,4 +1,4 @@
-# AgroPredict
+# AgroPrediction
 
 AgroPredict es una plataforma orientada a la predicción y análisis de variables agrícolas utilizando tecnologías modernas de ciencia de datos e inteligencia artificial. Su objetivo es ayudar a productores, ingenieros agrónomos e investigadores a tomar mejores decisiones basadas en datos, optimizando los procesos agrícolas y mejorando los rendimientos.
 
